@@ -24,12 +24,12 @@
         "start": "node app.js"
     },
     "bugs": {
-        "url": "https://github.com/magictoolbox/sirvlog-monitors/issues"
+        "url": "https://github.com/sirv/sirvlog-monitors/issues"
     },
     "readmeFilename": "README.md",
     "repository": {
         "type": "git",
-        "url": "git://github.com/magictoolbox/sirvlog-monitors.git"
+        "url": "git://github.com/sirv/sirvlog-monitors.git"
     },
     "keywords": [
         "log server",
@@ -37,7 +37,7 @@
         "sirvlog",
         "monitor",
         "service health monitor",
-        "magictoolbox",
+        "sirv",
         "elasticsearch"
     ],
     "license": "MIT"

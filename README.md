@@ -3,15 +3,15 @@
 Monitors your whole Application health by periodically checking:
 
   * Status of services controlled by [supervisord](http://supervisord.org/) (via XML-RPC)
-  * logs saved by [sirvlog](https://github.com/magictoolbox/sirvlog) server 
+  * logs saved by [sirvlog](https://github.com/sirv/sirvlog) server 
   
 Will immediately send an ALERT email (or push to Amazon SNS topic) if there are any problems or errors
 
 ### See also
 
-  * [sirvlog](https://github.com/magictoolbox/sirvlog)
-  * [sirvlog web frontend](https://github.com/magictoolbox/sirvlog-web)
-  * [log parser for sirvlog](https://github.com/magictoolbox/sirvlog-parser)
+  * [sirvlog](https://github.com/sirv/sirvlog)
+  * [sirvlog web frontend](https://github.com/sirv/sirvlog-web)
+  * [log parser for sirvlog](https://github.com/sirv/sirvlog-parser)
 
 ## Authors
 
@@ -21,7 +21,7 @@ Will immediately send an ALERT email (or push to Amazon SNS topic) if there are 
 
 # License (MIT)
 
-Copyright (c) 2013 Magic Toolbox.
+Copyright (c) 2013 Sirv.
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
