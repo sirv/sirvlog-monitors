@@ -1,27 +1,4 @@
-# sirvlog-monitors
-
-Monitors your whole Application health by periodically checking:
-
-  * Status of services controlled by [supervisord](http://supervisord.org/) (via XML-RPC)
-  * logs saved by [sirvlog](https://github.com/magictoolbox/sirvlog) server 
-  
-Will immediately send an ALERT email (or push to Amazon SNS topic) if there are any problems or errors
-
-### See also
-
-  * [sirvlog](https://github.com/magictoolbox/sirvlog)
-  * [sirvlog web frontend](https://github.com/magictoolbox/sirvlog-web)
-  * [log parser for sirvlog](https://github.com/magictoolbox/sirvlog-parser)
-
-## Authors
-
-**Oleksiy Krivoshey**
-
-  * [https://github.com/oleksiyk](https://github.com/oleksiyk)
-
-# License (MIT)
-
-Copyright (c) 2013 Magic Toolbox.
+Copyright (c) 2013 Magic Toolbox
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -43,4 +20,3 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
-

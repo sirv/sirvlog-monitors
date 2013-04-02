@@ -1,0 +1,44 @@
+{
+    "author": {
+        "name": "Oleksiy Krivoshey",
+        "email": "<oleksiyk@gmail.com>"
+    },
+    "name": "sirvlog-monitors",
+    "description": "Service health monitors based on sirvlog and supervisord",
+    "version": "1.0.0",
+    "engines": {
+        "node": ">=0.10.0"
+    },
+    "dependencies":{
+        "sirvlog": "1.0.0",
+        "elastical":">=0.0.11",
+        "aws-sdk": ">=0.0.0",
+        "optimist": ">=0.3.5",
+        "clim": ">=1.0.0",
+        "underscore": ">=1.4.4",
+        "async": ">=0.2.5",
+        "xmlrpc": ">=0.0.0",
+        "emailjs": ">=0.3.3"
+    },
+    "scripts": {
+        "start": "node app.js"
+    },
+    "bugs": {
+        "url": "https://github.com/magictoolbox/sirvlog-monitors/issues"
+    },
+    "readmeFilename": "README.md",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/magictoolbox/sirvlog-monitors.git"
+    },
+    "keywords": [
+        "log server",
+        "logs",
+        "sirvlog",
+        "monitor",
+        "service health monitor",
+        "magictoolbox",
+        "elasticsearch"
+    ],
+    "license": "MIT"
+}
