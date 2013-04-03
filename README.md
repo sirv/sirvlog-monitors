@@ -17,6 +17,45 @@ If any of the services is in FATAL, FAILING, e.g in any "broken" status it will 
 
 The second one, loganalyzer, periodically connects to the same ElasticSearch server that your [sirvlog](https://github.com/sirv/sirvlog) server stores its messages and if it founds that there were any errors (fatal, critical, error) it will immediately send an alert email the same way supervisor monitor does. Of course you can filter out errors thats you are not interested in (see loganalyzer.exclude config option).
 
+### Running as [supervisord](http://supervisord.org/) service
+
+[supervisord](http://supervisord.org/) is a great tool to run your Node apps as it allows you to have full control over running services.
+
+So the typical config will be
+
+``` sh
+$ cat /etc/supervisor.d/sirvlog-monitors.conf 
+```
+
+``` sh
+[program:sirvlog-monitors]
+command=/home/nvm/v0.10.2/bin/node /home/sirvlog-monitors/src/app.js --config /home/sirvlog-monitors/config.js
+process_name=sirvlog-monitors
+numprocs=1
+numprocs_start=0
+autostart=true
+autorestart=true
+startsecs=1
+startretries=3
+exitcodes=0,2
+stopsignal=TERM
+stopwaitsecs=10
+user=www-data
+redirect_stderr=true
+stdout_logfile=/home/sirvlog-monitors/logs/sirvlog-monitors.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=10
+stdout_capture_maxbytes=0
+stdout_events_enabled=false
+stderr_logfile=AUTO
+stderr_logfile_maxbytes=50MB
+stderr_logfile_backups=10
+stderr_capture_maxbytes=0
+stderr_events_enabled=false
+serverurl=AUTO
+```
+
+
 ### See also
 
   * [sirvlog](https://github.com/sirv/sirvlog)
