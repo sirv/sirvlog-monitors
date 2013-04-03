@@ -7,6 +7,16 @@ Monitors your whole Application health by periodically checking:
   
 Will immediately send an ALERT email (or push to Amazon SNS topic) if there are any problems or errors
 
+### How does it work?
+
+The application currently consists of two monitors: supervisor and loganalyzer. 
+
+The first one, supervisor, periodically (oncer per minute) connects to configured hosts running [supervisord](http://supervisord.org/)
+(make sure your supervisord is configured to accepts XML-RPC connections) and verifies the status of all services running on this supervisor node.
+If any of the services is in FATAL, FAILING, e.g in any "broken" status it will immediately send an alert email using configured SMTP server (Amazon SMTP in example) or fallback to Amazon SNS if the smtp delivery fails.
+
+The second one, loganalyzer, periodically connects to the same ElasticSearch server that your [sirvlog](https://github.com/sirv/sirvlog) server stores its messages and if it founds that there were any errors (fatal, critical, error) it will immediately send an alert email the same way supervisor monitor does. Of course you can filter out errors thats you are not interested in (see loganalyzer.exclude config option).
+
 ### See also
 
   * [sirvlog](https://github.com/sirv/sirvlog)
