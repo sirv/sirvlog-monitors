@@ -1,29 +1,40 @@
 module.exports = {
 
-    aws: {
-        credentials: {
+    notifications: {
+        alertDelay: 10, // dont sent the same (identical) alarms more than once within this amount of minutes
+
+        subscriptions: [ // each array entry is a notification setup for a single user
+            // first try to deliver with pushover then with email (smtp) if that fails and if that fails too - try sns topic push
+            ['pushover://UUUUUUUUUUUU', 'email://admin@gmail.com', 'sns://arn:aws:sns:us-east-1:9999999999999:Health_alert'],
+
+            // just email
+            ['email://developer@gmail.com']
+        ],
+
+        // email server notifications setup (smtp)
+        email: {
+            server: "email-smtp.us-east-1.amazonaws.com",
+            port: 587,
+            username: "AAAAAAAAAAAAA",
+            password: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+            from: "\"Health Monitor\" <monitor@organisation.com>",
+            ssl: false,
+            tls: true
+        },
+
+        // pushover (pushover.net)
+        pushover: {
+            api_token: 'AAAAAAAAAAAAAAAAAAAA', // application API token
+            priority: 1, //  send as -1 to always send as a quiet notification, 1 to display as high-priority and bypass the user's quiet hours, or 2 to also require confirmation from the user
+            sound: 'alien' // sound
+        },
+
+        // amazon SNS
+        sns: {
             "accessKeyId": "AAAAAAAAAAAAAAAAAAAA",
             "secretAccessKey": "BBBBBBBBBBBBBBBB",
             "region": "us-east-1"
-        },
-        sns: {
-            arn: "arn:aws:sns:us-east-1:9999999999999:Health_alert" // will be used as fallback for email notifications if SMTP delivery fails
         }
-    },
-
-    notifications: {
-        server: "email-smtp.us-east-1.amazonaws.com",
-        port: 587,
-        username: "AAAAAAAAAAAAA",
-        password: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-        from: "\"Health Monitor\" <monitor@organisation.com>",
-        ssl: false,
-        tls: true,
-        alertDelay: 10, // dont sent the same (identical) alarms more than once within this amount of minutes
-        subscriptions: [
-            'admin@gmail.com',
-            'developer@gmail.com'
-        ]
     },
 
     sirvlog: {
