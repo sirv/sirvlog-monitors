@@ -4,6 +4,7 @@ var async = require('async');
 var AWS = require('aws-sdk');
 var crypto = require('crypto');
 var email   = require("emailjs");
+var request = require('request');
 
 var configFile = path.resolve(__dirname, 'config.js');
 
@@ -49,12 +50,12 @@ Application = function(){
     }.bind(this));
 
     this.emailServer  = email.server.connect({
-        user:    config.notifications.username,
-        password:   config.notifications.password,
-        host:    config.notifications.server,
-        port:    config.notifications.port,
-        ssl:     config.notifications.ssl,
-        tls:     config.notifications.tls
+        user:    config.notifications.email.username,
+        password:   config.notifications.email.password,
+        host:    config.notifications.email.server,
+        port:    config.notifications.email.port,
+        ssl:     config.notifications.email.ssl,
+        tls:     config.notifications.email.tls
     });
 
     AWS.config.update(config.aws.credentials);
@@ -122,10 +123,19 @@ Application.prototype.alert = function (subject, message, md5) {
         ts: ts
     });
 
+    if(config.notifications.pushover){
+        this.sendPushoverAlerts(message, subject);
+    }
+
+    this.sendEmailAlerts(message, subject);
+
+}
+
+Application.prototype.sendEmailAlerts = function(message, subject){
     this.emailServer.send({
         text:    message,
-        from:    config.notifications.from,
-        to:      config.notifications.subscriptions.join(','),
+        from:    config.notifications.email.from,
+        to:      config.notifications.email.subscriptions.join(','),
         subject: subject
     }, function(err, msg) {
         if(err){
@@ -154,14 +164,39 @@ Application.prototype.alert = function (subject, message, md5) {
             return;
         }
 
-        console.log('ALERT was sent with SMTP server ' + config.notifications.server);
+        console.log('ALERT was sent with SMTP server ' + config.notifications.email.server);
 
     }.bind(this));
+}
 
+Application.prototype.sendPushoverAlerts = function(message, subject){
+
+    _.each(config.notifications.pushover.subscriptions, function(user){
+        request({
+            url: 'https://api.pushover.net/1/messages.json',
+            method: 'POST',
+            form: {
+                token: config.notifications.pushover.api_token,
+                user: user,
+                message: message,
+                title: subject,
+                priority: config.notifications.pushover.priority || 0,
+                sound: config.notifications.pushover.sound || 'pushover'
+            }
+        }, function(err, res, body){
+            if(err){
+                console.error(err);
+            } else {
+                console.log('ALERT was sent with Pushover to', user, ':', body)
+            }
+        })
+    })
 
 }
 
 var app = new Application();
+
+//app.sendPushoverAlerts('test message', 'test subject');
 
 app.run();
 

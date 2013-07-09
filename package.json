@@ -18,7 +18,8 @@
         "underscore": ">=1.4.4",
         "async": ">=0.2.5",
         "xmlrpc": ">=0.0.0",
-        "emailjs": ">=0.3.3"
+        "emailjs": ">=0.3.3",
+        "request": ">=2.21.0"
     },
     "scripts": {
         "start": "node app.js"

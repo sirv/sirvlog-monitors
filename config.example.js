@@ -12,18 +12,29 @@ module.exports = {
     },
 
     notifications: {
-        server: "email-smtp.us-east-1.amazonaws.com",
-        port: 587,
-        username: "AAAAAAAAAAAAA",
-        password: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-        from: "\"Health Monitor\" <monitor@organisation.com>",
-        ssl: false,
-        tls: true,
         alertDelay: 10, // dont sent the same (identical) alarms more than once within this amount of minutes
-        subscriptions: [
-            'admin@gmail.com',
-            'developer@gmail.com'
-        ]
+        email: {
+            server: "email-smtp.us-east-1.amazonaws.com",
+            port: 587,
+            username: "AAAAAAAAAAAAA",
+            password: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+            from: "\"Health Monitor\" <monitor@organisation.com>",
+            ssl: false,
+            tls: true,
+            subscriptions: [
+                'admin@gmail.com',
+                'developer@gmail.com'
+            ]
+        },
+        pushover: {
+            api_token: 'AAAAAAAAAAAAA', // application API token
+            priority: 1, //  send as -1 to always send as a quiet notification, 1 to display as high-priority and bypass the user's quiet hours, or 2 to also require confirmation from the user
+            sound: 'alien', // sound
+            subscriptions: [ // user keys
+                'UUUUUUUUUUUUU'
+            ]
+
+        }
     },
 
     sirvlog: {
