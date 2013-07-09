@@ -49,18 +49,27 @@ Application = function(){
 
     }.bind(this));
 
-    this.emailServer  = email.server.connect({
-        user:    config.notifications.email.username,
-        password:   config.notifications.email.password,
-        host:    config.notifications.email.server,
-        port:    config.notifications.email.port,
-        ssl:     config.notifications.email.ssl,
-        tls:     config.notifications.email.tls
-    });
+    this.emailServer = null;
+    this.sns = null;
 
-    AWS.config.update(config.aws.credentials);
+    if(config.notifications){
 
-    this.sns = new AWS.SNS();
+        if(config.notifications.email){
+            this.emailServer  = email.server.connect({
+                user:    config.notifications.email.username,
+                password:   config.notifications.email.password,
+                host:    config.notifications.email.server,
+                port:    config.notifications.email.port,
+                ssl:     config.notifications.email.ssl,
+                tls:     config.notifications.email.tls
+            });
+        }
+
+        if(config.notifications.sns){
+            AWS.config.update(config.notifications.sns);
+            this.sns = new AWS.SNS();
+        }
+    }
 }
 
 Application.prototype.run = function(){
@@ -123,81 +132,116 @@ Application.prototype.alert = function (subject, message, md5) {
         ts: ts
     });
 
-    if(config.notifications.pushover){
-        this.sendPushoverAlerts(message, subject);
-    }
+    _.each(config.notifications.subscriptions, function(subscription){
+        async.series(
+            _.map(subscription, function(target){
+                var matches = target.match(/^(pushover|email|sns):\/\/(.*)$/)
+                if(matches){
 
-    this.sendEmailAlerts(message, subject);
+                    return function(cb){
+                        this[matches[1] + 'Alert'].call(this, matches[2], message, subject, function(err){
+                            // reverse the meaning of error
+                            if(err){
+                                console.error('[' + matches[1].toUpperCase() + ']: ', err);
+                                cb(null);
+                            } else {
+                                cb('ALERT was sent with _' + matches[1] + '_ protocol to ' + matches[2]);
+                            }
+                        })
+                    }.bind(this)
+                } else {
+                    console.error('Don\'t know what to do with', target);
+                    return null;
+                }
+            }.bind(this))
+        , function(err, result){
+            if(err) {
+                console.log(err);
+            } else {
+                console.error('Failed to send ALERT with all configured methods!')
+            }
+        })
+    }.bind(this))
 
 }
 
-Application.prototype.sendEmailAlerts = function(message, subject){
+
+Application.prototype.emailAlert = function(email, message, subject, cb){
+    if(!this.emailServer){
+        cb('Email server is not configured')
+        return;
+    }
+
     this.emailServer.send({
         text:    message,
         from:    config.notifications.email.from,
-        to:      config.notifications.email.subscriptions.join(','),
+        to:      email,
         subject: subject
     }, function(err, msg) {
         if(err){
-            console.error(err);
-
-            if(config.aws.sns.arn){ // fallback to Amazon SNS
-                this.sns.client.publish({
-                    TopicArn: config.aws.sns.arn,
-                    Message: message,
-                    Subject: subject
-                }, function(err, data){
-                    if(err){
-                        console.error(err);
-                        return;
-                    }
-
-                    this.alerts.push({
-                        md5: md5,
-                        ts: ts
-                    });
-
-                    console.log('ALERT was sent with Amazon SNS: ' + JSON.stringify(data));
-                }.bind(this))
-            }
-
-            return;
+            cb(err);
+        } else {
+            cb(null);
         }
-
-        console.log('ALERT was sent with SMTP server ' + config.notifications.email.server);
 
     }.bind(this));
 }
 
-Application.prototype.sendPushoverAlerts = function(message, subject){
+Application.prototype.snsAlert = function(topic, message, subject, cb){
 
-    _.each(config.notifications.pushover.subscriptions, function(user){
-        request({
-            url: 'https://api.pushover.net/1/messages.json',
-            method: 'POST',
-            form: {
-                token: config.notifications.pushover.api_token,
-                user: user,
-                message: message,
-                title: subject,
-                priority: config.notifications.pushover.priority || 0,
-                sound: config.notifications.pushover.sound || 'pushover'
-            }
-        }, function(err, res, body){
-            if(err){
-                console.error(err);
-            } else {
-                console.log('ALERT was sent with Pushover to', user, ':', body)
-            }
-        })
+    if(!this.sns){
+        cb('SNS is not configured')
+        return;
+    }
+
+    this.sns.client.publish({
+        TopicArn: topic,
+        Message: message,
+        Subject: subject
+    }, function(err, data){
+        if(err){
+            cb(err);
+        } else {
+            cb(null);
+        }
+    }.bind(this))
+}
+
+Application.prototype.pushoverAlert = function(user, message, subject, cb){
+
+    if(!config.notifications.pushover){
+        cb('Pushover is not configured');
+        return;
+    }
+
+    request({
+        url: 'https://api.pushover.net/1/messages.json',
+        method: 'POST',
+        form: {
+            token: config.notifications.pushover.api_token,
+            user: user,
+            message: message,
+            title: subject,
+            priority: config.notifications.pushover.priority || 0,
+            sound: config.notifications.pushover.sound || 'pushover'
+        }
+    }, function(err, res, body){
+
+        if(err){
+            cb(err);
+        } else if(res.statusCode != 200) {
+            cb(body);
+        } else {
+            cb(null);
+        }
     })
 
 }
 
 var app = new Application();
 
-//app.sendPushoverAlerts('test message', 'test subject');
+app.alert('test subject', 'test message');
 
-app.run();
+//app.run();
 
-setInterval(app.run.bind(app), 1000 * config.checksInterval);
+//setInterval(app.run.bind(app), 1000 * config.checksInterval);
