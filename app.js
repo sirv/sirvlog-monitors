@@ -240,8 +240,8 @@ Application.prototype.pushoverAlert = function(user, message, subject, cb){
 
 var app = new Application();
 
-app.alert('test subject', 'test message');
+//app.alert('test subject', 'test message');
 
-//app.run();
+app.run();
 
-//setInterval(app.run.bind(app), 1000 * config.checksInterval);
+setInterval(app.run.bind(app), 1000 * config.checksInterval);
