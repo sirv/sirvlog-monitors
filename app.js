@@ -94,7 +94,7 @@ Application.prototype.logData = function (data, monitorName, monitorConfig) {
 
             this.alert('SERVICE ' + (info.getStateLevel()==4?'WARNING':'ALERT') + ': ' + service + ': STATUS: ' + info.getStateName(),
                 JSON.stringify(info, null, '\t'),
-                crypto.createHash('md5').update(service+info.state).digest("hex"));
+                crypto.createHash('md5').update(service+info.state).digest("hex"), info);
         }
 
         console.log(quote(service) + ' ' + info.message);
@@ -113,10 +113,12 @@ Application.prototype.logData = function (data, monitorName, monitorConfig) {
     }.bind(this))
 }
 
-Application.prototype.alert = function (subject, message, md5) {
+Application.prototype.alert = function (subject, message, md5, info) {
 
     md5 = md5 || crypto.createHash('md5').update(subject + message).digest("hex");
     var ts = Date.now();
+
+    info = info || {};
 
     console.log('ALERT: ' + subject + '\n' + message);
 
@@ -139,8 +141,8 @@ Application.prototype.alert = function (subject, message, md5) {
                 if(matches){
 
                     return function(cb){
-                        this[matches[1] + 'Alert'].call(this, matches[2], message, subject, function(err){
-                            // reverse the meaning of error
+                        this[matches[1] + 'Alert'].call(this, matches[2], message, subject, info, function(err){
+                            // reverse the meaning of error :)
                             if(err){
                                 console.error('[' + matches[1].toUpperCase() + ']: ', err);
                                 cb(null);
@@ -166,7 +168,7 @@ Application.prototype.alert = function (subject, message, md5) {
 }
 
 
-Application.prototype.emailAlert = function(email, message, subject, cb){
+Application.prototype.emailAlert = function(email, message, subject, info, cb){
     if(!this.emailServer){
         cb('Email server is not configured')
         return;
@@ -187,7 +189,7 @@ Application.prototype.emailAlert = function(email, message, subject, cb){
     }.bind(this));
 }
 
-Application.prototype.snsAlert = function(topic, message, subject, cb){
+Application.prototype.snsAlert = function(topic, message, subject, info, cb){
 
     if(!this.sns){
         cb('SNS is not configured')
@@ -207,7 +209,7 @@ Application.prototype.snsAlert = function(topic, message, subject, cb){
     }.bind(this))
 }
 
-Application.prototype.pushoverAlert = function(user, message, subject, cb){
+Application.prototype.pushoverAlert = function(user, message, subject, info, cb){
 
     if(!config.notifications.pushover){
         cb('Pushover is not configured');
@@ -220,10 +222,11 @@ Application.prototype.pushoverAlert = function(user, message, subject, cb){
         form: {
             token: config.notifications.pushover.api_token,
             user: user,
-            message: message,
+            message: info.message || message,
             title: subject,
             priority: config.notifications.pushover.priority || 0,
-            sound: config.notifications.pushover.sound || 'pushover'
+            sound: config.notifications.pushover.sound || 'pushover',
+            url: info.link || null
         }
     }, function(err, res, body){
 
